@@ -1,0 +1,5 @@
+add_executable(00_link_test 00_link_test.cpp)
+target_link_libraries(00_link_test zen_engine)
+
+add_executable(01_init_context 01_init_context.cpp)
+target_link_libraries(01_init_context zen_engine)
