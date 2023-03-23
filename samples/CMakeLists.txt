@@ -3,3 +3,6 @@ target_link_libraries(00_link_test zen_engine)
 
 add_executable(01_init_context 01_init_context.cpp)
 target_link_libraries(01_init_context zen_engine)
+
+add_executable(02_create_swapchain 02_create_swapchain.cpp)
+target_link_libraries(02_create_swapchain zen_engine)

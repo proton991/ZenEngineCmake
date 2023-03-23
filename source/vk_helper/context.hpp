@@ -105,7 +105,7 @@ public:
   bool create_device(VkSurfaceKHR surface, const char** required_device_extensions,
                      unsigned num_required_device_extensions,
                      const VkPhysicalDeviceFeatures* required_features);
-
+  VkInstance get_instance() const { return m_instance; }
 private:
   const VkApplicationInfo& get_application_info() const;
   bool find_gpu();

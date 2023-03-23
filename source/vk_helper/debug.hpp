@@ -6,7 +6,7 @@
 namespace zen::vkh {
 class DebugUtil final {
 public:
-  VULKAN_NON_COPIABLE(DebugUtil)
+  ZEN_NON_COPIABLE(DebugUtil)
 
   static DebugUtil& get() {
     static DebugUtil debugUtil;

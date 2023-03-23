@@ -1,4 +1,5 @@
 #include "device.hpp"
+#include "debug.hpp"
 #include "logging.hpp"
 
 namespace zen::vkh {
@@ -6,6 +7,12 @@ static const char* QUEUE_NAMES[] = {"Graphics", "Compute", "transfer", "video_de
 Device::~Device() {
   if (m_allocator) {
     vmaDestroyAllocator(m_allocator);
+  }
+  if (m_device != VK_NULL_HANDLE) {
+    vkDeviceWaitIdle(m_device);
+  }
+  if (m_device != VK_NULL_HANDLE) {
+    vkDestroyDevice(m_device, nullptr);
   }
 }
 
@@ -22,8 +29,65 @@ void Device::set_context(Context& ctx) {
   display_info();
 }
 
+void Device::create_image_view(const VkImageViewCreateInfo& image_view_ci, VkImageView* image_view,
+                               const std::string& name) const {
+  VK_CHECK(vkCreateImageView(m_device, &image_view_ci, nullptr, image_view), "vkCreateImageView");
+  DebugUtil::get().set_obj_name(*image_view, name.data());
+}
+
+void Device::destroy_image_view(VkImageView image_view) const {
+  vkDestroyImageView(m_device, image_view, nullptr);
+}
+
+VkDevice Device::get_device() const {
+  return m_device;
+}
+std::vector<VkSurfaceFormatKHR> Device::get_surface_formats(VkSurfaceKHR surface) const {
+  VK_ASSERT(m_gpu);
+  std::uint32_t count = 0;
+  VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_gpu, surface, &count, nullptr),
+           "vkGetPhysicalDeviceSurfaceFormatsKHR");
+
+  std::vector<VkSurfaceFormatKHR> surface_formats(count);
+  VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_gpu, surface, &count, surface_formats.data()),
+           "vkGetPhysicalDeviceSurfaceFormatsKHR");
+  return surface_formats;
+}
+
+std::vector<VkPresentModeKHR> Device::get_surface_present_modes(VkSurfaceKHR surface) const {
+  assert(m_gpu);
+  std::uint32_t count = 0;
+  VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_gpu, surface, &count, nullptr),
+           "vkGetPhysicalDeviceSurfaceFormatsKHR");
+  std::vector<VkPresentModeKHR> present_modes(count);
+  VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_gpu, surface, &count, present_modes.data()),
+           "vkGetPhysicalDeviceSurfaceFormatsKHR");
+  return present_modes;
+}
+
+VkSurfaceCapabilitiesKHR Device::get_surface_capabilities(VkSurfaceKHR surface) const {
+  VkSurfaceCapabilitiesKHR caps{};
+  VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_gpu, surface, &caps),
+           "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+  return caps;
+}
+
 VmaAllocator Device::get_allocator() const {
   return m_allocator;
+}
+
+VkPhysicalDevice Device::get_gpu() const {
+  return m_gpu;
+}
+
+void Device::create_semaphore(const VkSemaphoreCreateInfo& semaphore_ci, VkSemaphore* semaphore,
+                              const std::string& name) const {
+  VK_CHECK(vkCreateSemaphore(m_device, &semaphore_ci, nullptr, semaphore), "vkCreateSemaphore");
+  DebugUtil::get().set_obj_name(*semaphore, name.data());
+}
+
+void Device::destroy_semaphore(VkSemaphore semaphore) const {
+  vkDestroySemaphore(m_device, semaphore, nullptr);
 }
 
 void Device::init_vma() {

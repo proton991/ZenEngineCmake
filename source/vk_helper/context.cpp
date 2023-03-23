@@ -54,12 +54,6 @@ Context::Context() {
 }
 
 Context::~Context() {
-  if (m_device != VK_NULL_HANDLE) {
-    vkDeviceWaitIdle(m_device);
-  }
-  if (m_device != VK_NULL_HANDLE) {
-    vkDestroyDevice(m_device, nullptr);
-  }
   if (m_debug_messenger != VK_NULL_HANDLE) {
     vkDestroyDebugUtilsMessengerEXT(m_instance, m_debug_messenger, nullptr);
   }
@@ -162,7 +156,7 @@ bool Context::create_instance(const char** instance_ext, uint32_t instance_ext_c
   VkValidationFeaturesEXT validation_features{VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT};
   VkDebugUtilsMessengerCreateInfoEXT inst_debug_info{};
   populate_dbg_messenger_ci(inst_debug_info);
-  validation_features.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &inst_debug_info;
+  validation_features.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&inst_debug_info;
   if (has_layer("VK_LAYER_KHRONOS_validation")) {
     instance_layers.push_back("VK_LAYER_KHRONOS_validation");
     logger::info("Enabling VK_LAYER_KHRONOS_validation.");
@@ -293,7 +287,8 @@ bool Context::find_proper_queue(uint32_t& family, uint32_t& index, VkQueueFlags 
     // A graphics queue candidate must support present for us to select it.
     if ((required & VK_QUEUE_GRAPHICS_BIT) && m_surface) {
       VkBool32 supported = VK_FALSE;
-      VK_ASSERT(vkGetPhysicalDeviceSurfaceSupportKHR(m_gpu, family_index, m_surface, &supported));
+      VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(m_gpu, family_index, m_surface, &supported),
+               "vkGetPhysicalDeviceSurfaceSupportKHR");
       if (!supported) {
         continue;
       }
