@@ -3,7 +3,6 @@
 #define VK_NO_PROTOTYPES
 #include "vk_mem_alloc.h"
 #include <volk.h>
-#include <GLFW/glfw3.h>
 
 #define ZEN_NON_COPIABLE(ClassName)             \
   ClassName(const ClassName&)            = delete; \

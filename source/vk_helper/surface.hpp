@@ -1,6 +1,7 @@
 #ifndef ZENENGINE_SURFACE_HPP
 #define ZENENGINE_SURFACE_HPP
 #include "base.hpp"
+#include <GLFW/glfw3.h>
 #include <vector>
 
 namespace zen::vkh {
