@@ -66,6 +66,8 @@ std::vector<VkSubpassDependency> Renderpass::get_subpass_deps(const SubpassDepIn
     deps[subpass_count].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
   }
   for (uint32_t subpass = 1; subpass < subpass_count; subpass++) {
+    deps[subpass].srcSubpass = subpass - 1;
+    deps[subpass].dstSubpass = subpass;
     if (info.color_att_read_write & (1u << (subpass - 1))) {
       deps[subpass].srcStageMask |= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
       deps[subpass].srcAccessMask |= VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;

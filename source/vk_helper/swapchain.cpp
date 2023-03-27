@@ -19,6 +19,11 @@ Swapchain::~Swapchain() {
 
 }
 
+VkImageView Swapchain::get_image_view(uint32_t index) {
+  VK_ASSERT(index >= 0 && index < m_image_views.size());
+  return m_image_views.at(index);
+}
+
 void Swapchain::setup(std::uint32_t width, std::uint32_t height, bool vsync_enabled,
                       VkSwapchainKHR old_swapchain) {
   const auto caps = m_device.get_surface_capabilities(m_surface);

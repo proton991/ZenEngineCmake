@@ -10,6 +10,9 @@ public:
   Swapchain(const Device& device, VkSurfaceKHR surface, uint32_t width, uint32_t height,
             bool vsync);
   ~Swapchain();
+  auto get_image_count() const { return m_images.size(); }
+  auto get_extent() const { return m_extent; }
+  VkImageView get_image_view(uint32_t index);
 
 private:
   void setup(std::uint32_t width, std::uint32_t height, bool vsync_enabled,

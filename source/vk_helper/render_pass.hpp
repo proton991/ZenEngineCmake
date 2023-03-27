@@ -34,4 +34,4 @@ private:
   VkRenderPass m_renderpass{nullptr};
 };
 }  // namespace zen::vkh
-#endif  //RENDER_PASS_HPP
+#endif  //ZENENGINE_RENDER_PASS_HPP
