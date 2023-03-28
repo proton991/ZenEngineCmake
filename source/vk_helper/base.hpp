@@ -4,7 +4,7 @@
 #include "vk_mem_alloc.h"
 #include <volk.h>
 
-#define ZEN_NON_COPIABLE(ClassName)             \
+#define ZEN_NO_COPY_MOVE(ClassName)             \
   ClassName(const ClassName&)            = delete; \
   ClassName(ClassName&&)                 = delete; \
   ClassName& operator=(const ClassName&) = delete; \

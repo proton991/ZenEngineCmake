@@ -13,13 +13,13 @@ Framebuffer::Framebuffer(const Device& device, const FramebufferInfo& info) : m_
       .width           = info.extent.width,
       .height          = info.extent.height,
       .layers          = info.layer_count};
-  VK_CHECK(vkCreateFramebuffer(m_device.get_device(), &framebuffer_ci, nullptr, &m_framebuffer),
+  VK_CHECK(vkCreateFramebuffer(m_device.handle(), &framebuffer_ci, nullptr, &m_framebuffer),
            "vkCreateFramebuffer");
   DebugUtil::get().set_obj_name(m_framebuffer, info.name.data());
 }
 
 Framebuffer::~Framebuffer() {
-  vkDestroyFramebuffer(m_device.get_device(), m_framebuffer, nullptr);
+  vkDestroyFramebuffer(m_device.handle(), m_framebuffer, nullptr);
 }
 
 uint32_t Framebuffer::get_max_layers(const std::vector<ImageInfo>& image_infos) {

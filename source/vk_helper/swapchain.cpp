@@ -10,7 +10,7 @@ Swapchain::Swapchain(const Device& device, VkSurfaceKHR surface, uint32_t width,
 }
 
 Swapchain::~Swapchain() {
-  vkDestroySwapchainKHR(m_device.get_device(), m_swapchain, nullptr);
+  vkDestroySwapchainKHR(m_device.handle(), m_swapchain, nullptr);
   for (auto& image_view : m_image_views) {
     m_device.destroy_image_view(image_view);
   }
@@ -53,7 +53,7 @@ void Swapchain::setup(std::uint32_t width, std::uint32_t height, bool vsync_enab
       .oldSwapchain = old_swapchain,
   };
   spdlog::trace("Creating swapchain");
-  VK_CHECK(vkCreateSwapchainKHR(m_device.get_device(), &swapchain_ci, nullptr, &m_swapchain),
+  VK_CHECK(vkCreateSwapchainKHR(m_device.handle(), &swapchain_ci, nullptr, &m_swapchain),
            "vkCreateSwapchainKHR");
   m_images = get_swapchain_images();
   m_image_views.resize(m_images.size());
@@ -88,10 +88,10 @@ void Swapchain::setup(std::uint32_t width, std::uint32_t height, bool vsync_enab
 
 std::vector<VkImage> Swapchain::get_swapchain_images() {
   std::uint32_t count = 0;
-  VK_CHECK(vkGetSwapchainImagesKHR(m_device.get_device(), m_swapchain, &count, nullptr),
+  VK_CHECK(vkGetSwapchainImagesKHR(m_device.handle(), m_swapchain, &count, nullptr),
            "vkGetSwapchainImagesKHR");
   std::vector<VkImage> images(count);
-  VK_CHECK(vkGetSwapchainImagesKHR(m_device.get_device(), m_swapchain, &count, images.data()),
+  VK_CHECK(vkGetSwapchainImagesKHR(m_device.handle(), m_swapchain, &count, images.data()),
            "vkGetSwapchainImagesKHR");
   return images;
 }

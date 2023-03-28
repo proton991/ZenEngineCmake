@@ -39,7 +39,7 @@ void Device::destroy_image_view(VkImageView image_view) const {
   vkDestroyImageView(m_device, image_view, nullptr);
 }
 
-VkDevice Device::get_device() const {
+VkDevice Device::handle() const {
   return m_device;
 }
 std::vector<VkSurfaceFormatKHR> Device::get_surface_formats(VkSurfaceKHR surface) const {
@@ -88,6 +88,22 @@ void Device::create_semaphore(const VkSemaphoreCreateInfo& semaphore_ci, VkSemap
 
 void Device::destroy_semaphore(VkSemaphore semaphore) const {
   vkDestroySemaphore(m_device, semaphore, nullptr);
+}
+
+void Device::create_fence(const VkFenceCreateInfo& fence_ci, VkFence* fence,
+                          const std::string& name) const {
+  VK_CHECK(vkCreateFence(m_device, &fence_ci, nullptr, fence), "vkCreateFence");
+  DebugUtil::get().set_obj_name(*fence, name.data());
+}
+
+void Device::destroy_fence(VkFence fence) const {
+  vkDestroyFence(m_device, fence, nullptr);
+}
+
+void Device::allocate_command_buffer(const VkCommandBufferAllocateInfo& info,
+                                     VkCommandBuffer* cmd_buffer, const std::string& name) const {
+  VK_CHECK(vkAllocateCommandBuffers(m_device, &info, cmd_buffer), "vkAllocateCommandBuffers");
+  DebugUtil::get().set_obj_name(*cmd_buffer, name.data());
 }
 
 void Device::init_vma() {

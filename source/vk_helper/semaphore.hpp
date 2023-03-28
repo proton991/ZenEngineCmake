@@ -8,7 +8,7 @@ class Device;
 /// RAII wrapper class for VkSemaphore
 class Semaphore {
 public:
-  ZEN_NON_COPIABLE(Semaphore)
+  ZEN_NO_COPY_MOVE(Semaphore)
 
   Semaphore(const Device& device, const std::string& name);
   ~Semaphore();

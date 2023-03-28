@@ -7,7 +7,7 @@
 namespace zen::vkh {
 class Surface {
 public:
-  ZEN_NON_COPIABLE(Surface)
+  ZEN_NO_COPY_MOVE(Surface)
   Surface(VkInstance instance, GLFWwindow* glfw_window);
   ~Surface();
   static std::vector<const char*> get_device_exts();

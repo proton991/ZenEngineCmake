@@ -6,7 +6,7 @@
 namespace zen::vkh {
 class DebugUtil final {
 public:
-  ZEN_NON_COPIABLE(DebugUtil)
+  ZEN_NO_COPY_MOVE(DebugUtil)
 
   static DebugUtil& get() {
     static DebugUtil debugUtil;
@@ -56,6 +56,9 @@ public:
   }
   void set_obj_name(const VkSemaphore& object, const char* name) const {
     set_obj_name(object, name, VK_OBJECT_TYPE_SEMAPHORE);
+  }
+  void set_obj_name(const VkFence& object, const char* name) const {
+    set_obj_name(object, name, VK_OBJECT_TYPE_FENCE);
   }
   void set_obj_name(const VkShaderModule& object, const char* name) const {
     set_obj_name(object, name, VK_OBJECT_TYPE_SHADER_MODULE);

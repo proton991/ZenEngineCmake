@@ -3,6 +3,7 @@
 #include <vk_helper/surface.hpp>
 #include <vk_helper/swapchain.hpp>
 #include <vk_helper/semaphore.hpp>
+#include <vk_helper/fence.hpp>
 #include <systems/window_system.hpp>
 #include <logging.hpp>
 
@@ -28,6 +29,7 @@ int main() {
   device.set_context(context);
   vkh::Swapchain swapchain(device, surface.handle(), window.get_width(), window.get_height(), true);
   vkh::Semaphore semaphore(device, "test");
+  vkh::Fence fence(device, "test", false);
   while (!window.should_close()) {
     window.update();
   }

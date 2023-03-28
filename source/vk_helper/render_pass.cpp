@@ -14,7 +14,7 @@ Renderpass::Renderpass(const Device& device, const RenderpassInfo& rp_info) : m_
   renderpass_ci.pSubpasses      = rp_info.subpass_descriptions.data();
   renderpass_ci.dependencyCount = dependencies.size();
   renderpass_ci.pDependencies   = dependencies.data();
-  VK_CHECK(vkCreateRenderPass(m_device.get_device(), &renderpass_ci, nullptr, &m_renderpass),
+  VK_CHECK(vkCreateRenderPass(m_device.handle(), &renderpass_ci, nullptr, &m_renderpass),
            "vkCreateRenderPass");
 }
 
