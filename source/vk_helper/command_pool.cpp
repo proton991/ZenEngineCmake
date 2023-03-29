@@ -12,12 +12,11 @@ CommandPool::CommandPool(const Device& device, std::string name)
                                          .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT |
                                                   VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
                                          .queueFamilyIndex = device.graphics_queue_family_index()};
-  VK_CHECK(vkCreateCommandPool(m_device.handle(), &cmd_pool_ci, nullptr, &m_cmd_pool),
-           "vkCreateCommandPool");
+  m_device.create_command_pool(cmd_pool_ci, &m_cmd_pool, m_name);
 }
 
 CommandPool::~CommandPool() {
-  vkDestroyCommandPool(m_device.handle(), m_cmd_pool, nullptr);
+  m_device.destroy_command_pool(m_cmd_pool);
 }
 
 const CommandBuffer& CommandPool::request_primary_command_buffer(const std::string& name) {

@@ -80,6 +80,46 @@ VkPhysicalDevice Device::get_gpu() const {
   return m_gpu;
 }
 
+void Device::create_swapchain(const VkSwapchainCreateInfoKHR& info, VkSwapchainKHR* swapchain,
+                              const std::string& name) const {
+  VK_CHECK(vkCreateSwapchainKHR(m_device, &info, nullptr, swapchain), "vkCreateSwapchainKHR");
+  DebugUtil::get().set_obj_name(*swapchain, name.data());
+}
+
+void Device::destroy_swapchain(VkSwapchainKHR swapchain) const {
+  vkDestroySwapchainKHR(m_device, swapchain, nullptr);
+}
+
+void Device::create_render_pass(const VkRenderPassCreateInfo& info, VkRenderPass* render_pass,
+                                const std::string& name) const {
+  VK_CHECK(vkCreateRenderPass(m_device, &info, nullptr, render_pass), "vkCreateRenderPass");
+  DebugUtil::get().set_obj_name(*render_pass, name.data());
+}
+
+void Device::destroy_render_pass(VkRenderPass render_pass) const {
+  vkDestroyRenderPass(m_device, render_pass, nullptr);
+}
+
+void Device::create_framebuffer(const VkFramebufferCreateInfo& info, VkFramebuffer* framebuffer,
+                                const std::string& name) const {
+  VK_CHECK(vkCreateFramebuffer(m_device, &info, nullptr, framebuffer), "vkCreateFramebuffer");
+  DebugUtil::get().set_obj_name(*framebuffer, name.data());
+}
+
+void Device::destroy_framebuffer(VkFramebuffer framebuffer) const {
+  vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+}
+
+void Device::create_shader_module(const VkShaderModuleCreateInfo& info,
+                                  VkShaderModule* shader_module, const std::string& name) const {
+  vkCreateShaderModule(m_device, &info, nullptr, shader_module);
+  DebugUtil::get().set_obj_name(*shader_module, name.data());
+}
+
+void Device::destroy_shader_module(VkShaderModule shader_module) const {
+  vkDestroyShaderModule(m_device, shader_module, nullptr);
+}
+
 void Device::create_semaphore(const VkSemaphoreCreateInfo& semaphore_ci, VkSemaphore* semaphore,
                               const std::string& name) const {
   VK_CHECK(vkCreateSemaphore(m_device, &semaphore_ci, nullptr, semaphore), "vkCreateSemaphore");
@@ -98,6 +138,16 @@ void Device::create_fence(const VkFenceCreateInfo& fence_ci, VkFence* fence,
 
 void Device::destroy_fence(VkFence fence) const {
   vkDestroyFence(m_device, fence, nullptr);
+}
+
+void Device::create_command_pool(const VkCommandPoolCreateInfo& info, VkCommandPool* cmd_pool,
+                                 const std::string& name) const {
+  VK_CHECK(vkCreateCommandPool(m_device, &info, nullptr, cmd_pool), "vkCreateCommandPool");
+  DebugUtil::get().set_obj_name(*cmd_pool, name.data());
+}
+
+void Device::destroy_command_pool(VkCommandPool cmd_pool) const {
+  vkDestroyCommandPool(m_device, cmd_pool, nullptr);
 }
 
 void Device::allocate_command_buffer(const VkCommandBufferAllocateInfo& info,

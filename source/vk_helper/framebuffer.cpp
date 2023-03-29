@@ -1,6 +1,5 @@
 #include "framebuffer.hpp"
 #include <algorithm>
-#include "debug.hpp"
 #include "device.hpp"
 
 namespace zen::vkh {
@@ -13,13 +12,11 @@ Framebuffer::Framebuffer(const Device& device, const FramebufferInfo& info) : m_
       .width           = info.extent.width,
       .height          = info.extent.height,
       .layers          = info.layer_count};
-  VK_CHECK(vkCreateFramebuffer(m_device.handle(), &framebuffer_ci, nullptr, &m_framebuffer),
-           "vkCreateFramebuffer");
-  DebugUtil::get().set_obj_name(m_framebuffer, info.name.data());
+  m_device.create_framebuffer(framebuffer_ci, &m_framebuffer, info.name);
 }
 
 Framebuffer::~Framebuffer() {
-  vkDestroyFramebuffer(m_device.handle(), m_framebuffer, nullptr);
+  m_device.destroy_framebuffer(m_framebuffer);
 }
 
 uint32_t Framebuffer::get_max_layers(const std::vector<ImageInfo>& image_infos) {

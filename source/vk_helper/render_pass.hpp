@@ -25,13 +25,14 @@ struct RenderpassInfo {
 class Renderpass {
 public:
   Renderpass(const Device& device, const RenderpassInfo& rp_info);
+  ~Renderpass();
 
-  auto handle() const { return m_renderpass; }
+  auto handle() const { return m_render_pass; }
 private:
   std::vector<VkSubpassDependency> get_subpass_deps(const SubpassDepInfo& info,
                                                     uint32_t subpass_count);
   const Device& m_device;
-  VkRenderPass m_renderpass{nullptr};
+  VkRenderPass m_render_pass{nullptr};
 };
 }  // namespace zen::vkh
 #endif  //ZENENGINE_RENDER_PASS_HPP

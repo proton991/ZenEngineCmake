@@ -10,7 +10,7 @@ Swapchain::Swapchain(const Device& device, VkSurfaceKHR surface, uint32_t width,
 }
 
 Swapchain::~Swapchain() {
-  vkDestroySwapchainKHR(m_device.handle(), m_swapchain, nullptr);
+  m_device.destroy_swapchain(m_swapchain);
   for (auto& image_view : m_image_views) {
     m_device.destroy_image_view(image_view);
   }
@@ -53,8 +53,8 @@ void Swapchain::setup(std::uint32_t width, std::uint32_t height, bool vsync_enab
       .oldSwapchain = old_swapchain,
   };
   spdlog::trace("Creating swapchain");
-  VK_CHECK(vkCreateSwapchainKHR(m_device.handle(), &swapchain_ci, nullptr, &m_swapchain),
-           "vkCreateSwapchainKHR");
+  m_device.create_swapchain(swapchain_ci, &m_swapchain, "swapchain");
+
   m_images = get_swapchain_images();
   m_image_views.resize(m_images.size());
   if (m_images.empty()) {

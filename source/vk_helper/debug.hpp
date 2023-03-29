@@ -27,6 +27,9 @@ public:
   void set_obj_name(const VkCommandBuffer& object, const char* name) const {
     set_obj_name(object, name, VK_OBJECT_TYPE_COMMAND_BUFFER);
   }
+  void set_obj_name(const VkCommandPool& object, const char* name) const {
+    set_obj_name(object, name, VK_OBJECT_TYPE_COMMAND_POOL);
+  }
   void set_obj_name(const VkDescriptorSet& object, const char* name) const {
     set_obj_name(object, name, VK_OBJECT_TYPE_DESCRIPTOR_SET);
   }

@@ -18,6 +18,15 @@ public:
   VkQueue transfer_queue() const { return m_queue_info.queues[QUEUE_INDEX_TRANSFER]; }
   VkQueue present_queue() const { return m_queue_info.queues[QUEUE_INDEX_GRAPHICS]; }
 
+  void create_render_pass(const VkRenderPassCreateInfo& info, VkRenderPass* render_pass, const std::string& name) const;
+  void destroy_render_pass(VkRenderPass render_pass) const;
+
+  void create_framebuffer(const VkFramebufferCreateInfo& info, VkFramebuffer* framebuffer, const std::string& name) const;
+  void destroy_framebuffer(VkFramebuffer framebuffer) const;
+
+  void create_shader_module(const VkShaderModuleCreateInfo& info, VkShaderModule* shader_module, const std::string& name) const;
+  void destroy_shader_module(VkShaderModule shader_module) const;
+
   void create_semaphore(const VkSemaphoreCreateInfo& semaphore_ci, VkSemaphore* semaphore,
                         const std::string& name) const;
   void destroy_semaphore(VkSemaphore semaphore) const;
@@ -25,7 +34,13 @@ public:
   void create_fence(const VkFenceCreateInfo& fence_ci, VkFence* fence, const std::string& name) const;
   void destroy_fence(VkFence fence) const;
 
+  void create_command_pool(const VkCommandPoolCreateInfo& info, VkCommandPool* cmd_pool, const std::string& name) const;
+  void destroy_command_pool(VkCommandPool cmd_pool) const;
+
   void allocate_command_buffer(const VkCommandBufferAllocateInfo& info, VkCommandBuffer* cmd_buffer, const std::string& name) const;
+
+  void create_swapchain(const VkSwapchainCreateInfoKHR& info, VkSwapchainKHR* swapchain, const std::string& name) const;
+  void destroy_swapchain(VkSwapchainKHR swapchain) const;
 
   void create_image_view(const VkImageViewCreateInfo& image_view_ci, VkImageView* image_view,
                          const std::string& name) const;
