@@ -32,12 +32,12 @@ Image::Image(const Device& device, ImageInfo info) : m_device(device), m_info(st
       .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
       .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
   };
-  VmaAllocationCreateInfo allocCreateInfo = {};
-  allocCreateInfo.usage                   = VMA_MEMORY_USAGE_AUTO;
-  allocCreateInfo.flags                   = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-  allocCreateInfo.priority                = 1.0f;
+  VmaAllocationCreateInfo vma_alloc_ci{};
+  vma_alloc_ci.usage    = VMA_MEMORY_USAGE_AUTO;
+  vma_alloc_ci.flags    = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+  vma_alloc_ci.priority = 1.0f;
 
-  VK_CHECK(vmaCreateImage(m_device.get_allocator(), &image_ci, &allocCreateInfo, &m_image,
+  VK_CHECK(vmaCreateImage(m_device.get_allocator(), &image_ci, &vma_alloc_ci, &m_image,
                           &m_allocation, nullptr),
            "vmaCreateImage");
   vmaSetAllocationName(m_device.get_allocator(), m_allocation, m_info.name.c_str());
