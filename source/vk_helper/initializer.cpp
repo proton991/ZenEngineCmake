@@ -45,10 +45,12 @@ VkAttachmentDescription transient_color_att_description(VkFormat format_,
 VkAttachmentReference color_att_ref(uint32_t binding) {
   return {binding, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
 }
+
 VkAttachmentReference input_att_ref(uint32_t binding) {
   return {binding, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
 }
-VkAttachmentReference depth_att_ref(uint32_t binding) {
+
+VkAttachmentReference depth_stencil_att_ref(uint32_t binding) {
   return {binding, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
 }
 }  // namespace zen::vkh

@@ -5,9 +5,6 @@
 
 namespace zen::vkh {
 class Device;
-using AttachmentDescriptions = std::vector<VkAttachmentDescription>;
-using SubpassDescriptions = std::vector<VkSubpassDescription>;
-
 struct SubpassDepInfo {
   uint32_t input_att_read{0};
   uint32_t color_att_read_write{0};
@@ -17,22 +14,36 @@ struct SubpassDepInfo {
   bool extern_color_dep{true};
 };
 
-struct RenderpassInfo {
-  AttachmentDescriptions att_descriptions;
-  SubpassDescriptions subpass_descriptions;
-  SubpassDepInfo subpass_dep_info;
+struct SubpassInfo {
+  SubpassInfo(const std::vector<uint32_t>& colors, const std::vector<uint32_t>& inputs,
+              uint32_t depth_stencil);
+  std::vector<VkAttachmentReference> color_refs;
+  std::vector<VkAttachmentReference> input_refs;
+  VkAttachmentReference depth_stencil_ref{};
 };
-class Renderpass {
-public:
-  Renderpass(const Device& device, const RenderpassInfo& rp_info);
-  ~Renderpass();
 
-  auto handle() const { return m_render_pass; }
+class RenderPassBuilder {
+public:
+  explicit RenderPassBuilder(const Device& device) : m_device(device) {}
+  ~RenderPassBuilder() = default;
+
+  RenderPassBuilder& add_present_att(VkFormat format);
+  RenderPassBuilder& add_color_att(VkFormat format, bool clear);
+  RenderPassBuilder& add_depth_stencil_att(VkFormat format);
+
+  RenderPassBuilder& add_subpass(const std::vector<uint32_t>& color_refs,
+                                 const std::vector<uint32_t>& input_refs,
+                                 uint32_t depth_stencil_ref);
+
+  RenderPassBuilder& set_subpass_deps(const SubpassDepInfo& info);
+
+  VkRenderPass build();
 private:
-  std::vector<VkSubpassDependency> get_subpass_deps(const SubpassDepInfo& info,
-                                                    uint32_t subpass_count);
   const Device& m_device;
-  VkRenderPass m_render_pass{nullptr};
+  std::vector<VkAttachmentDescription> m_attachments;
+  std::vector<SubpassInfo> m_subpass_infos;
+  std::vector<VkAttachmentReference> m_attachment_refs;
+  std::vector<VkSubpassDependency> m_subpass_deps;
 };
 }  // namespace zen::vkh
 #endif  //ZENENGINE_RENDER_PASS_HPP

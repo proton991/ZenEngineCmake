@@ -4,29 +4,75 @@
 #include "logging.hpp"
 
 namespace zen::vkh {
-Renderpass::Renderpass(const Device& device, const RenderpassInfo& rp_info) : m_device(device) {
-  const auto subpass_count = rp_info.subpass_descriptions.size();
-  const auto dependencies  = get_subpass_deps(rp_info.subpass_dep_info, subpass_count);
-  VkRenderPassCreateInfo renderpass_ci{VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
-  renderpass_ci.attachmentCount = rp_info.att_descriptions.size();
-  renderpass_ci.pAttachments    = rp_info.att_descriptions.data();
-  renderpass_ci.subpassCount    = subpass_count;
-  renderpass_ci.pSubpasses      = rp_info.subpass_descriptions.data();
-  renderpass_ci.dependencyCount = dependencies.size();
-  renderpass_ci.pDependencies   = dependencies.data();
-  m_device.create_render_pass(renderpass_ci, &m_render_pass, "render pass");
+SubpassInfo::SubpassInfo(const std::vector<uint32_t>& colors, const std::vector<uint32_t>& inputs,
+                         uint32_t depth_stencil) {
+  for (const auto color : colors) {
+    color_refs.emplace_back(color_att_ref(color));
+  }
+  for (const auto input : inputs) {
+    color_refs.emplace_back(input_att_ref(input));
+  }
+  depth_stencil_ref = depth_stencil_att_ref(depth_stencil);
 }
 
-Renderpass::~Renderpass() {
-  m_device.destroy_render_pass(m_render_pass);
+RenderPassBuilder& RenderPassBuilder::add_present_att(VkFormat format) {
+  VkAttachmentDescription att = {
+      .format         = format,
+      .samples        = VK_SAMPLE_COUNT_1_BIT,
+      .loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
+      .storeOp        = VK_ATTACHMENT_STORE_OP_STORE,
+      .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+      .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+      .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
+      .finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  // present layout
+  };
+  m_attachments.emplace_back(att);
+  return *this;
 }
 
-std::vector<VkSubpassDependency> Renderpass::get_subpass_deps(const SubpassDepInfo& info,
-                                                              uint32_t subpass_count) {
+RenderPassBuilder& RenderPassBuilder::add_color_att(VkFormat format, bool clear) {
+  VkAttachmentDescription att = {
+      .format         = format,
+      .samples        = VK_SAMPLE_COUNT_1_BIT,
+      .loadOp         = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+      .storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+      .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+      .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+      .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
+      .finalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL  // color attachment layout
+  };
+  m_attachments.emplace_back(att);
+  return *this;
+}
+
+RenderPassBuilder& RenderPassBuilder::add_depth_stencil_att(VkFormat format) {
+  VkAttachmentDescription att = {
+      .format         = format,
+      .samples        = VK_SAMPLE_COUNT_1_BIT,
+      .loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
+      .storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+      .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+      .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+      .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
+      .finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL  // depth stencil layout
+  };
+  m_attachments.emplace_back(att);
+  return *this;
+}
+
+RenderPassBuilder& RenderPassBuilder::add_subpass(const std::vector<uint32_t>& color_refs,
+                                                  const std::vector<uint32_t>& input_refs,
+                                                  uint32_t depth_stencil_ref) {
+  m_subpass_infos.emplace_back(color_refs, input_refs, depth_stencil_ref);
+  return *this;
+}
+
+RenderPassBuilder& RenderPassBuilder::set_subpass_deps(const SubpassDepInfo& info) {
+  auto subpass_count    = static_cast<uint32_t>(m_subpass_infos.size());
   uint32_t last_subpass = subpass_count - 1;
   // external dependencies
   VkSubpassDependency init = {};
-  std::vector<VkSubpassDependency> deps(subpass_count+1, init);
+  std::vector<VkSubpassDependency> deps(subpass_count + 1, init);
   if (info.extern_depth_dep) {
     deps[0].srcSubpass = VK_SUBPASS_EXTERNAL;
     deps[0].dstSubpass = 0;
@@ -106,6 +152,35 @@ std::vector<VkSubpassDependency> Renderpass::get_subpass_deps(const SubpassDepIn
       deps[subpass].dstAccessMask |= VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
     }
   }
-  return deps;
+  m_subpass_deps = std::move(deps);
+  return *this;
+}
+
+VkRenderPass RenderPassBuilder::build() {
+  std::vector<VkSubpassDescription> subpass_descriptions;
+  for (const auto& subpass_info : m_subpass_infos) {
+    VkSubpassDescription subpass{
+        .pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS,
+        .inputAttachmentCount = static_cast<uint32_t>(subpass_info.input_refs.size()),
+        .pInputAttachments =
+            subpass_info.input_refs.empty() ? nullptr : subpass_info.input_refs.data(),
+        .colorAttachmentCount = static_cast<uint32_t>(subpass_info.color_refs.size()),
+        .pColorAttachments =
+            subpass_info.color_refs.empty() ? nullptr : subpass_info.color_refs.data(),
+        .pDepthStencilAttachment = &subpass_info.depth_stencil_ref  //
+    };
+    subpass_descriptions.emplace_back(subpass);
+  }
+  VkRenderPassCreateInfo render_pass_ci{VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
+  render_pass_ci.attachmentCount = static_cast<uint32_t>(m_attachments.size());
+  render_pass_ci.pAttachments    = m_attachments.data();
+  render_pass_ci.subpassCount    = static_cast<uint32_t>(subpass_descriptions.size());
+  render_pass_ci.pSubpasses      = subpass_descriptions.data();
+  render_pass_ci.dependencyCount = static_cast<uint32_t>(m_subpass_deps.size());
+  render_pass_ci.pDependencies   = m_subpass_deps.data();
+  VkRenderPass render_pass;
+  m_device.create_render_pass(render_pass_ci, &render_pass, "render pass");
+
+  return render_pass;
 }
 }  // namespace zen::vkh
