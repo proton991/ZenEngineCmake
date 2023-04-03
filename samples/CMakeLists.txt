@@ -6,3 +6,6 @@ target_link_libraries(01_init_context zen_engine)
 
 add_executable(02_create_swapchain 02_create_swapchain.cpp)
 target_link_libraries(02_create_swapchain zen_engine)
+
+add_executable(03_shader_program 03_shader_program.cpp)
+target_link_libraries(03_shader_program zen_engine)

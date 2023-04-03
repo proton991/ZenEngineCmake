@@ -54,3 +54,14 @@ else ()
   target_link_libraries(volk PRIVATE dl)
 endif ()
 target_include_directories(volk PUBLIC volk ${VULKAN_INCLUDE_DIR})
+
+###########################
+#      spirv_reflect      #
+###########################
+add_library(spirv_reflect STATIC)
+target_sources(spirv_reflect PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/spirv_reflect/spirv_reflect.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/spirv_reflect/spirv_reflect.c"
+    )
+target_include_directories(spirv_reflect PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/spirv_reflect" )
+target_include_directories(spirv_reflect PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/spirv_reflect/include" )

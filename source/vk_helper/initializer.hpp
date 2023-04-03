@@ -15,6 +15,9 @@ VkAttachmentReference input_att_ref(uint32_t binding);
 VkAttachmentReference depth_stencil_att_ref(uint32_t binding);
 
 // Pipeline state infos
+VkPipelineLayoutCreateInfo pipeline_layout_ci();
+VkPipelineShaderStageCreateInfo shader_stage_ci(VkShaderStageFlagBits stage,
+                                                VkShaderModule shader_module);
 VkPipelineVertexInputStateCreateInfo empty_vertex_input_state_ci();
 VkPipelineInputAssemblyStateCreateInfo input_assembly_state_ci(
     VkPrimitiveTopology topology  = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,

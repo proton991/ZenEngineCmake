@@ -1,48 +1,59 @@
 #ifndef ZENENGINE_SHADER_HPP
 #define ZENENGINE_SHADER_HPP
+#include <array>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "base.hpp"
 
 namespace zen::vkh {
 class Device;
 
-class Shader {
+enum class ShaderType : decltype(1) {
+  Vertex   = VK_SHADER_STAGE_VERTEX_BIT,
+  Fragment = VK_SHADER_STAGE_FRAGMENT_BIT
+};
+
+struct ShaderStage {
+  ShaderStage() = default;
+  ShaderStage(std::vector<char> code_, VkShaderModule shader_module_, VkShaderStageFlagBits flag_);
+  std::vector<char> code;
+  VkShaderModule shader_module{nullptr};
+  VkShaderStageFlagBits flag{};
+};
+
+struct ReflectedBinding {
+  uint32_t set;
+  uint32_t binding;
+  VkDescriptorType type;
+};
+
+class ShaderProgram {
 public:
-  /// @brief Construct a shader module from a SPIR-V file.
-  /// This constructor loads the file content and just calls the other constructor.
-  /// @param device The const reference to a device RAII wrapper instance.
-  /// @param type The shader type.
-  /// @param name The internal debug marker name of the VkShaderModule.
-  /// @param file_name The name of the SPIR-V shader file to load.
-  /// @param entry_point The name of the entry point, "main" by default.
-  Shader(const Device& device, VkShaderStageFlagBits type, std::string name,
-         const std::string& file_name, std::string entry_point = "main");
+  ShaderProgram(const Device& device, std::string name);
+  ShaderProgram(const ShaderProgram&) = delete;
+  ShaderProgram(ShaderProgram&&) noexcept;
 
-  Shader(const Shader&) = delete;
-  Shader(Shader&&) noexcept;
+  ~ShaderProgram();
 
-  ~Shader();
+  ShaderProgram& operator=(const ShaderProgram&) = delete;
+  ShaderProgram& operator=(ShaderProgram&&)      = delete;
 
-  Shader& operator=(const Shader&) = delete;
-  Shader& operator=(Shader&&)      = delete;
+  ShaderProgram& add_stage(const std::string& file_name, ShaderType type);
+  ShaderProgram& fill_stage_cis(std::vector<VkPipelineShaderStageCreateInfo>& pipeline_stages);
+  ShaderProgram& reflect_layout();
 
-  VkPipelineShaderStageCreateInfo get_pipeline_shader_stage_ci() const;
+  auto get_name() const { return m_name; }
+  auto get_pipeline_layout() const { return m_pipeline_layout; }
 
-  const std::string& name() const { return m_name; }
-
-  const std::string& entry_point() const { return m_entry_point; }
-
-  VkShaderStageFlagBits type() const { return m_type; }
-
-  VkShaderModule module() const { return m_shader_module; }
-
+  void show_ds_layout_info() const;
 private:
   const Device& m_device;
   std::string m_name;
-  std::string m_entry_point;
-  VkShaderStageFlagBits m_type;
-  VkShaderModule m_shader_module{nullptr};
+  std::vector<ShaderStage> m_stages;
+  std::array<VkDescriptorSetLayout, 4> m_ds_layouts;
+  std::unordered_map<std::string, ReflectedBinding> m_reflected_bindings;
+  VkPipelineLayout m_pipeline_layout{nullptr};
 };
 }  // namespace zen::vkh
 #endif  //ZENENGINE_SHADER_HPP
