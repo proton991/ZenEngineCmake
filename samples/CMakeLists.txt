@@ -9,3 +9,6 @@ target_link_libraries(02_create_swapchain zen_engine)
 
 add_executable(03_shader_program 03_shader_program.cpp)
 target_link_libraries(03_shader_program zen_engine)
+
+add_executable(forward_renderer_test forward_renderer_test.cpp)
+target_link_libraries(forward_renderer_test zen_engine)

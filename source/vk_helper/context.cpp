@@ -8,22 +8,26 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL
 vulkan_messenger_cb(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                     VkDebugUtilsMessageTypeFlagsEXT messageType,
                     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-  switch (messageSeverity) {
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-      logger::error("{}", pCallbackData->pMessage);
-      break;
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-      logger::warn("{}", pCallbackData->pMessage);
-      break;
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-      logger::info("{}", pCallbackData->pMessage);
-      break;
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-      logger::trace("{}", pCallbackData->pMessage);
-      break;
-    default:
-      return VK_FALSE;
+  if (messageType == VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT ||
+      messageType == VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) {
+    switch (messageSeverity) {
+      case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+        logger::error("{}", pCallbackData->pMessage);
+        break;
+      case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+        logger::warn("{}", pCallbackData->pMessage);
+        break;
+      case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+        logger::info("{}", pCallbackData->pMessage);
+        break;
+      case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+        logger::trace("{}", pCallbackData->pMessage);
+        break;
+      default:
+        return VK_FALSE;
+    }
   }
+
   bool log_object_names = false;
   for (uint32_t i = 0; i < pCallbackData->objectCount; i++) {
     auto* name = pCallbackData->pObjects[i].pObjectName;

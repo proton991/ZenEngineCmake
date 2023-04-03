@@ -23,7 +23,7 @@ public:
   Window& operator=(Window&&)      = delete;
   Window(const Window&)            = delete;
   Window& operator=(const Window&) = delete;
-  [[nodiscard]] GLFWwindow* get() const { return m_window; }
+  [[nodiscard]] GLFWwindow* handle() const { return m_window; }
 
   void set_glfw_callbacks();
 

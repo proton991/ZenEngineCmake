@@ -17,7 +17,7 @@ int main() {
     logger::error("Failed to create instance");
     return 1;
   }
-  vkh::Surface surface(context.get_instance(), window.get());
+  vkh::Surface surface(context.get_instance(), window.handle());
 
   auto device_exts = vkh::Surface::get_device_exts();
   if (!context.create_device(surface.handle(), device_exts.data(), device_exts.size(), nullptr)) {
